@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.finalproject.market.dao.MKDao">
+
+	<!-- 찜 상품순위  -->
+	<select id="FavoriteRanking" resultType="String">
+	 select board_title, like_bSeqno, rank() over(order by count(like_bSeqno) desc)
+	 from m_board b, m_likes l where b.board_Seqno = l.like_bSeqno group by l.like_bSeqno limit 10;
+	</select>
+	
+	<!-- 찜 상품순위 숫자 -->
+	<select id="FavoriteRankingnum" resultType="integer">
+ select count(b.board_title), rank() over(order by count(like_bSeqno) desc) 
+ from m_board b, m_likes l where b.board_Seqno = l.like_bSeqno group by l.like_bSeqno limit 10;
+	</select>
+	
+	
+	
+	
+	<!-- 거래지역현황지역 -->
+   <select id="TransactionArea" resultType="String">
+   select distinct(deal_location) , rank() over(order by count(deal_location)desc)
+   from m_dlocation where deal_location LIKE '%${param}%' group by deal_location limit 10;
+   </select>
+   <!-- 거래지역현황 숫자 -->
+   <select id="TransactionAreanum" resultType="integer">
+   select count(deal_location), rank() over(order by count(deal_location) desc) 
+   from m_dlocation where deal_location like '%${param}%' group by deal_location limit 10;
+   </select>
+   
+   <!-- 유저아이디중복체크 -->
+   <select id="idcheckDao" resultType="int">
+   SELECT COUNT(USER_ID) FROM M_USERINFO WHERE USER_ID = #{param1}
+   </select>
+
+	<!-- 로그인  -->
+   <select id="userloginDao" resultType="int">
+      SELECT COUNT(USER_ID) FROM M_USERINFO WHERE USER_ID = #{param1} AND USER_PASSWORD = #{param2}
+   </select>
+   
+   <!-- Id/Pw찾기 -->
+
+   
+   <!-- 유저시퀀스번호 가져오기 -->
+   <select id="getUserSeqno" resultType="int">
+      SELECT USER_SEQNO FROM M_USERINFO WHERE USER_ID = #{param1}
+   </select>
+   
+   
+   <!-- 중복체크 -->
+   
+   <!-- 회원가입 -->
+    <insert id="newuserDao">
+      INSERT INTO M_USERINFO(USER_ID, USER_PASSWORD, USER_NAME, USER_TELNO, USER_EMAIL1, USER_EMAIL2, USER_ADDRESS1, USER_ADDRESS2, USER_ADDRESS3, USER_ADDRESSZIPCODE)
+       VALUE(#{param1}, #{param2}, #{param3}, #{param4}, #{param5}, #{param6}, #{param7}, #{param8}, #{param9}, #{param10})
+   </insert> 
+   
+   <!--내정보  불러오기-->
+   <select id="userdetailDao" resultType="com.finalproject.market.dto.userinfo">
+      SELECT * FROM M_USERINFO WHERE USER_ID = #{param1}
+   </select>
+   
+   <!--내정보 수정하기  -->
+   <update id="userupdatedetailDao">
+   UPDATE M_USERINFO SET USER_PASSWORD = #{param2}, USER_NAME = #{param3}, USER_TELNO = #{param4}, USER_EMAIL1 = #{param5}, USER_EMAIL2 = #{param6}, USER_ADDRESS1 = #{param7}, USER_ADDRESS2 = #{param8}, USER_ADDRESS3 = #{param9}, USER_ADDRESSZIPCODE = #{param10} WHERE USER_ID = #{param1}
+   </update>
+   
+   <!--유저id/pw찾기  -->
+   <select id="useridfindDao" resultType="String">
+   SELECT USER_ID, USER_PASSWORD FROM M_USERINFO WHERE USER_NAME = #{param1} AND USER_TELNO = #{param2}
+   </select>
+   
+   <!-- 상품조회수랭킹 -->
+   <select id="GraphStatisticsDao" resultType="String">
+   SELECT BOARD_TITLE, RANK() OVER(ORDER BY BOARD_HIT DESC) FROM M_BOARD WHERE (SELECT RANK() OVER(ORDER BY BOARD_HIT DESC) LIMIT 10) LIMIT 10;
+   </select>
+   
+   <!--아이템조회수  -->
+   <select id="GraphHitDao" resultType="integer">
+   SELECT BOARD_HIT, RANK() OVER(ORDER BY BOARD_HIT DESC) FROM M_BOARD WHERE (SELECT RANK() OVER(ORDER BY BOARD_HIT DESC) LIMIT 10) LIMIT 10;
+   </select>
+   
+   <!-- 실시간검색순위 -->
+   <select id="searchDao" resultType="String">
+   SELECT SEARCH_CONTENT, COUNT(*), RANK() OVER(ORDER BY COUNT(*) DESC) FROM M_SEARCHDATA GROUP BY SEARCH_CONTENT HAVING COUNT(*) >= 1 LIMIT 10; 
+   </select>
+   <!-- 찜 -->
+   <insert id="LikeDao">
+   insert into  m_likes (like_useqno, like_bseqno) value (#{param1}, #{param2})
+   </insert>
+   
+   <select id="findLikesSeqno" resultType="int">
+   select  like_seqno from m_likes where like_bseqno = #{param1} and like_useqno = #{param2};
+   </select>
+   
+   <delete id="deleteLikes">
+   delete from m_likes where like_seqno = #{param1};
+   
+   </delete>
+   
+      <!-- 찜하기 -->
+   <insert id="LikeinsertDao">
+   INSERT INTO M_LIKES (LIKE_BSEQNO, LIKE_USEQNO) VALUE (#{param1}, #{param2});
+   </insert>
+   <!-- 찜 찾기 -->
+   <select id="LikefindDao" resultType="integer"><!-- integer은 null이어도 리턴됨 -->
+   SELECT LIKE_SEQNO FROM M_LIKES WHERE LIKE_BSEQNO = #{param1} AND LIKE_USEQNO = #{param2};
+   </select>
+   <!-- 찜 삭제 -->
+   <delete id="DeleteLike">
+   DELETE FROM M_LIKES WHERE LIKE_SEQNO = #{param1};
+   </delete>
+   
+   <!-- 로그인시 좋아요 반영하기   -->
+   <select id="findchecklike" resultType="int">
+   SELECT COUNT(*) FROM M_LIKES WHERE LIKE_BSEQNO = #{param1} AND LIKE_USEQNO = #{param2};
+   </select>
+   
+   
+   <select id="findMyId" resultType="com.finalproject.market.dto.userinfo">
+   
+   SELECT USER_ID FROM M_USERINFO WHERE USER_NAME = '${param1}' AND USER_TELNO = ${param2};
+   
+   </select>
+   
+   <select id="findMyPw" resultType="com.finalproject.market.dto.userinfo">
+   
+   select user_password, user_id from m_userinfo where user_id = '${param1}' and user_telno = ${param2}
+   
+   </select>
+   
+      <select id="SearchResult" resultType="com.finalproject.market.mybatisDto.MainBoardListDto">
+
+      select distinct b.board_seqno , b.board_Hit, b.board_title, b.board_price, b.board_deletedate, i.image_string, d.deal_location 
+      from m_image as I, m_board as B, m_userinfo as U, m_dLocation as d 
+      where I.image_bseqno = B.board_seqno and U.user_seqno = B.board_useqno and d.deal_bseqno = B.board_seqno and
+      (B.board_title like CONCAT('%', #{param1}, '%') or B.board_content like CONCAT('%', #{param2}, '%') or U.user_id like CONCAT('%', #{param3}, '%') or B.board_price like CONCAT('%', #{param4}, '%') or d.deal_location like CONCAT('%', #{param1}, '%')) 
+      and B.board_deletedate is null order by B.board_seqno desc
+      
+	</select>
+   
+	
+
+
+
+</mapper>

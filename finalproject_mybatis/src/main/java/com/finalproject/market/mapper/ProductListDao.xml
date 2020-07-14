@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.finalproject.market.mybatisDao.ProductListDao">
+
+
+<select id= "BringProductList" resultType="com.finalproject.market.mybatisDto.ProductListDto">
+select b.board_title, i.image_string, b.board_useqno, b.board_seqno, b.board_hit, b.board_isDone, b.board_price, b.board_content, u.user_id, d.deal_location
+from m_board as b, m_userinfo as u, m_image as i, m_dLocation as d
+where b.board_useqno = u.user_seqno and i.image_bseqno = b.board_seqno and b.board_seqno = d.deal_bseqno and b.board_seqno = #{param1}
+</select>
+
+<select id= "BringReplyList" resultType="com.finalproject.market.mybatisDto.ProductReplyDto">
+select r.reply_content, u.user_id, b.board_seqno, r.reply_date, r.reply_seqno from m_board as b, m_userinfo as u, m_reply as r 
+where r.reply_bseqno = b.board_seqno and u.user_seqno = b.board_useqno and b.board_seqno = #{param1}
+</select>
+
+<update id ="AddViewCount">
+
+update m_board set board_hit = board_hit+1 where board_seqno = #{param1}
+
+</update>
+
+<select id= "FindBoardSeqno" resultType="int">
+select board_useqno from m_board where board_seqno = #{param1}
+</select>
+
+<select id= "CollectSellerList" resultType="com.finalproject.market.mybatisDto.SellerProductListDto">
+select b.board_title, i.image_string, b.board_useqno, b.board_seqno, b.board_isDone, b.board_hit, b.board_price, b.board_content, u.user_id, d.deal_location
+from m_board as b, m_userinfo as u, m_image as i, m_dLocation as d
+where b.board_useqno = u.user_seqno and i.image_bseqno = b.board_seqno and b.board_seqno = d.deal_bseqno and b.board_useqno = #{param1}
+</select>
+
+<select id="LikeCount" resultType="com.finalproject.market.mybatisDto.ProductListDto">
+
+select count(like_bseqno) as countLike from m_likes where like_bseqno = #{param1}
+
+</select>
+
+<select id="LikeCountss" resultType="int">
+
+select count(like_bseqno) as countLike from m_likes where like_bseqno = #{param1}
+
+</select>
+
+
+
+</mapper>

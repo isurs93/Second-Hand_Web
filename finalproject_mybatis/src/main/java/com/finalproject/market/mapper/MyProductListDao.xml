@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="com.finalproject.market.mybatisDao.myProductListDao">
+	
+	<select id= "bringMyProductList" resultType="com.finalproject.market.mybatisDto.MyProductListDto">
+		select I.image_seqno, I.image_bseqno, I.image_string, b.board_seqno, b.board_isDone, b.board_Hit, b.board_title, d.deal_location, b.board_price 
+		from m_image as I, m_board as B, m_userinfo as u, m_dLocation as d 
+		where I.image_bseqno = B.board_seqno and u.user_seqno = b.board_useqno and b.board_seqno = d.deal_bseqno and u.user_Id = #{param1} and b.board_deletedate is null order by b.board_seqno desc
+	</select>
+	
+	<select id= "DetailMyProductList" resultType="com.finalproject.market.mybatisDto.MyProductListDto">
+		select I.image_seqno, I.image_bseqno, I.image_string, b.board_isDone, b.board_seqno, b.board_Hit, b.board_title, b.board_content, u.user_id, b.board_price 
+		from m_image as I, m_board as B, m_userinfo as u 
+		where I.image_bseqno = B.board_seqno and u.user_seqno = b.board_useqno and b.board_seqno = #{param1}
+	</select>
+	
+	<insert id="UploadMyItem">
+	
+		insert into m_board(board_useqno, board_content, board_insertdate, board_title, board_price, board_hit, board_isDone) 
+		value (#{param1}, #{param2},now(),#{param3},#{param4}, 0, '판매중')
+		
+	</insert>
+	
+	<insert id = "UpdatePImage">
+	
+	insert into m_image(image_bseqno, image_string) value (#{param1},#{param2})
+	
+	</insert>
+	
+	<select id = "findMaxSeqNo" resultType="int">
+		
+ 	select max(board_seqno) from m_board where board_uSeqno = #{param1}
+ 	
+	</select>
+	
+	<update  id = "UpdateProductInfo">
+	
+	update m_board set board_title = #{param1}, board_content = #{param2}, board_price = #{param3} where board_seqno = #{param4}
+	
+	</update>
+	
+	<update id="DeleteMyProduct">
+	
+	update m_board set board_Deletedate = now() where board_seqno = #{param1}
+	
+	</update>
+	
+	<update id="updateMyImage">
+	
+	update m_image set image_string = #{param1} where image_bSeqno = #{param2}
+	
+	</update>
+	
+	<update id="updateMyLocation">
+	
+	update m_dLocation set deal_location = #{param1} where deal_bseqno = #{param2}
+	
+	</update>
+	
+	
+	<select id = "findMaxImageSeqNo" resultType="int">
+		
+ 	select max(image_seqno) from m_image
+ 	
+	</select>
+	
+	<insert id = "InsertDealLocation">
+	
+	insert into m_dLocation(deal_location, deal_date, deal_bseqno) value (#{param1}, now(), #{param2})
+	
+	</insert>
+	
+	<update id="dealCompleted">
+	
+	update m_board set board_isDone = #{param1} where board_seqno = #{param2}
+	
+	</update>
+	
+	<update id="ChangeProductStatus">
+	
+	update m_board set board_isDone = '판매완료' where board_Seqno = #{param1}
+	
+	</update>
+	
+	<select id= "MyLikeList" resultType="com.finalproject.market.mybatisDto.MyProductListDto">
+	
+	select distinct i.image_seqno, I.image_bseqno, I.image_string, l.like_checked, b.board_seqno, b.board_isDone, b.board_Hit, b.board_title, d.deal_location, b.board_price 
+		from m_image as I, m_board as B, m_userinfo as u, m_dLocation as d, m_likes as l 
+		where I.image_bseqno = B.board_seqno and u.user_seqno = b.board_useqno and b.board_seqno = d.deal_bseqno  and b.board_seqno = l.like_bseqno and l.like_useqno= #{param1} and l.like_checked = 1 
+		and b.board_deletedate is null order by b.board_seqno desc
+	
+	
+	</select>
+
+	</mapper>

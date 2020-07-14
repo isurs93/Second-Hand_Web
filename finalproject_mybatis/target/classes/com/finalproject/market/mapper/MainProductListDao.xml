@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.finalproject.market.mybatisDao.mainlistDao">
+
+
+<select id= "bringMainList" resultType="com.finalproject.market.mybatisDto.MainBoardListDto">
+		select I.image_seqno, I.image_bseqno, b.board_price, I.image_string, b.board_isDone, b.board_useqno, b.board_seqno, b.board_Hit, b.board_title, d.deal_location 
+		from m_image as I, m_board as B, m_dlocation as d 
+		where I.image_bseqno = B.board_seqno and B.board_seqno = d.deal_bseqno and board_deletedate is null order by board_seqno desc
+</select>
+
+<select id= "bringReceiverSeqNo" resultType="com.finalproject.market.mybatisDto.ProductReplyDto">
+		select u.user_id from m_board as b, m_userinfo as u 
+		where b.board_useqno = u.user_seqno and b.board_useqno = #{param1} and b.board_seqno = #{param2}
+</select>
+
+<select id="listForSearch" resultType="com.finalproject.market.mybatisDto.MainBoardListDto">
+
+		<!-- select distinct b.board_seqno , b.board_Hit, b.board_title, b.board_price, b.board_deletedate, i.image_string 
+		from m_image as I, m_board as B, m_userinfo as U 
+		where I.image_bseqno = B.board_seqno and U.user_seqno = B.board_useqno and 
+		(B.board_title like %#{param1}% or B.board_content like %#{param1}% or U.user_id like %#{param1}% or B.board_price like %#{param1}%) 
+		and B.board_deletedate is null order by B.board_seqno desc  -->
+		
+		select distinct b.board_seqno , b.board_Hit, b.board_title, b.board_price, b.board_isDone, b.board_deletedate, i.image_string, d.deal_location 
+		from m_image as I, m_board as B, m_userinfo as U, m_dLocation as d 
+		where I.image_bseqno = B.board_seqno and U.user_seqno = B.board_useqno and d.deal_bseqno = B.board_seqno and
+		(B.board_title like CONCAT('%', #{param1}, '%') or B.board_content like CONCAT('%', #{param2}, '%') or U.user_id like CONCAT('%', #{param3}, '%') or B.board_price like CONCAT('%', #{param4}, '%') or d.deal_location like CONCAT('%', #{param1}, '%')) 
+		and B.board_deletedate is null order by B.board_seqno desc
+		
+</select>
+
+<insert id= "InsertSearchedData">
+		insert into m_searchdata(search_content, search_date)
+		values(#{param1}, now())
+</insert>
+
+
+
+
+</mapper>

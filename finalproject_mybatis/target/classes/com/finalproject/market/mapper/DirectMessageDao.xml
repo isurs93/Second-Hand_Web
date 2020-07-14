@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="com.finalproject.market.mybatisDao.DirectMessageDao">
+	
+	
+	<insert id="SendDirectMessage">
+		insert into m_dm(dm_senderid, dm_reciverid, dm_content ,dm_InsertDate, dm_title)
+		values(#{param1}, #{param2}, #{param3}, now(), #{param4})
+	</insert>
+	
+	<select id ="collectMyMessage" resultType="com.finalproject.market.mybatisDto.DirectMessageDto">
+	select dm_seqno, dm_title, dm_content, dm_senderid, dm_insertDate from m_dm where dm_reciverId = #{param1}
+	</select>
+	
+	<select id ="MyDirectMessage" resultType="com.finalproject.market.mybatisDto.DirectMessageDto">
+	select dm_seqno, dm_title, dm_senderid, dm_content from m_dm where dm_seqno = #{param1}
+	
+	</select>
+	
+	<insert id="SendReplyMessage">
+	
+		insert into m_dm(dm_reciverid, dm_senderid, dm_content ,dm_InsertDate, dm_title)
+		values(#{param1}, #{param2}, #{param3}, now(), #{param4})
+	</insert>
+	
+	<select id ="ReadSellerId" resultType="com.finalproject.market.mybatisDto.DirectMessageDto">
+	select dm_senderid from m_dm where dm_seqno = #{param1}
+	
+	</select>
+	
+	
+	</mapper>
